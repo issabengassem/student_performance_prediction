@@ -1,3 +1,5 @@
-fastapi
-pycaret
-pandas
+﻿fastapi
+uvicorn
+pandas==2.1.4
+pycaret==3.3.2
+scikit-learn
