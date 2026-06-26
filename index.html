@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student Performance Prediction</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: #f3f4f6;
+      color: #111827;
+    }
+
+    header {
+      background: linear-gradient(135deg, #1e3a8a, #2563eb);
+      color: white;
+      padding: 35px 20px;
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 32px;
+    }
+
+    header p {
+      margin-top: 10px;
+      color: #dbeafe;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 30px auto;
+      padding: 20px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 25px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+      margin-bottom: 25px;
+    }
+
+    h2 {
+      margin-top: 0;
+      color: #1e3a8a;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 7px;
+      color: #374151;
+    }
+
+    input,
+    select {
+      width: 100%;
+      padding: 11px;
+      border: 1px solid #d1d5db;
+      border-radius: 10px;
+      font-size: 15px;
+      background: white;
+    }
+
+    input:focus,
+    select:focus {
+      outline: none;
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+
+    .actions {
+      margin-top: 25px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      border: none;
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 15px;
+    }
+
+    .btn-predict {
+      background: #2563eb;
+      color: white;
+    }
+
+    .btn-clear {
+      background: #6b7280;
+      color: white;
+    }
+
+    .btn-example {
+      background: #16a34a;
+      color: white;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+
+    .result {
+      display: none;
+      padding: 20px;
+      border-radius: 14px;
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .success {
+      display: block;
+      background: #dcfce7;
+      color: #166534;
+      border: 1px solid #86efac;
+    }
+
+    .error {
+      display: block;
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+
+    .loading {
+      display: block;
+      background: #dbeafe;
+      color: #1e40af;
+      border: 1px solid #93c5fd;
+    }
+
+    .api-box {
+      background: #111827;
+      color: #d1d5db;
+      padding: 14px;
+      border-radius: 10px;
+      font-size: 14px;
+      overflow-x: auto;
+    }
+
+    footer {
+      text-align: center;
+      color: #6b7280;
+      padding: 20px;
+    }
+
+    @media (max-width: 900px) {
+      .form-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 600px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      header h1 {
+        font-size: 25px;
+      }
+
+      button {
+        width: 100%;
+      }
+    }
+  </style>
+
+</head>
+
+<body>
+  <header>
+    <h1>Student Performance Prediction</h1>
+    <p>Predict the student grade class using your FastAPI machine learning model</p>
+  </header>
+
+  <main class="container">
+    <section class="card">
+      <h2>Prediction Form</h2>
+
+```
+  <form id="predictionForm">
+    <div class="form-grid">
+      <div>
+        <label for="Age">Age</label>
+        <input type="number" id="Age" min="15" max="18" required />
+      </div>
+
+      <div>
+        <label for="Gender">Gender</label>
+        <select id="Gender" required>
+          <option value="">Select gender</option>
+          <option value="0">Male</option>
+          <option value="1">Female</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="Ethnicity">Ethnicity</label>
+        <select id="Ethnicity" required>
+          <option value="">Select ethnicity</option>
+          <option value="0">Caucasian</option>
+          <option value="1">African American</option>
+          <option value="2">Asian</option>
+          <option value="3">Other</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="ParentalEducation">Parental Education</label>
+        <select id="ParentalEducation" required>
+          <option value="">Select level</option>
+          <option value="0">None</option>
+          <option value="1">High School</option>
+          <option value="2">Some College</option>
+          <option value="3">Bachelor's</option>
+          <option value="4">Higher</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="StudyTimeWeekly">Study Time Weekly</label>
+        <input type="number" id="StudyTimeWeekly" min="0" max="20" step="0.1" required />
+      </div>
+
+      <div>
+        <label for="Absences">Absences</label>
+        <input type="number" id="Absences" min="0" max="30" required />
+      </div>
+
+      <div>
+        <label for="Tutoring">Tutoring</label>
+        <select id="Tutoring" required>
+          <option value="">Select option</option>
+          <option value="0">No</option>
+          <option value="1">Yes</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="ParentalSupport">Parental Support</label>
+        <select id="ParentalSupport" required>
+          <option value="">Select support</option>
+          <option value="0">None</option>
+          <option value="1">Low</option>
+          <option value="2">Moderate</option>
+          <option value="3">High</option>
+          <option value="4">Very High</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="Extracurricular">Extracurricular</label>
+        <select id="Extracurricular" required>
+          <option value="">Select option</option>
+          <option value="0">No</option>
+          <option value="1">Yes</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="Sports">Sports</label>
+        <select id="Sports" required>
+          <option value="">Select option</option>
+          <option value="0">No</option>
+          <option value="1">Yes</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="Music">Music</label>
+        <select id="Music" required>
+          <option value="">Select option</option>
+          <option value="0">No</option>
+          <option value="1">Yes</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="Volunteering">Volunteering</label>
+        <select id="Volunteering" required>
+          <option value="">Select option</option>
+          <option value="0">No</option>
+          <option value="1">Yes</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button type="submit" class="btn-predict">Predict Grade</button>
+      <button type="button" class="btn-example" onclick="fillExample()">Fill Example</button>
+      <button type="button" class="btn-clear" onclick="clearForm()">Clear</button>
+    </div>
+  </form>
+
+  <div id="resultBox" class="result"></div>
+</section>
+
+<section class="card">
+  <h2>Connected API</h2>
+  <div class="api-box">
+    https://student-performance-prediction-x6t6.onrender.com/predict
+  </div>
+</section>
+```
+
+  </main>
+
+  <footer>
+    Student Performance Prediction Interface
+  </footer>
+
+  <script>
+    const API_URL = "https://student-performance-prediction-x6t6.onrender.com";
+
+    const form = document.getElementById("predictionForm");
+    const resultBox = document.getElementById("resultBox");
+
+    function getValue(id) {
+      return document.getElementById(id).value;
+    }
+
+    function showResult(message, type) {
+      resultBox.textContent = message;
+      resultBox.className = "result " + type;
+    }
+
+    function clearForm() {
+      form.reset();
+      resultBox.className = "result";
+      resultBox.textContent = "";
+    }
+
+    function fillExample() {
+      document.getElementById("Age").value = 17;
+      document.getElementById("Gender").value = 1;
+      document.getElementById("Ethnicity").value = 0;
+      document.getElementById("ParentalEducation").value = 2;
+      document.getElementById("StudyTimeWeekly").value = 19.83;
+      document.getElementById("Absences").value = 7;
+      document.getElementById("Tutoring").value = 1;
+      document.getElementById("ParentalSupport").value = 2;
+      document.getElementById("Extracurricular").value = 0;
+      document.getElementById("Sports").value = 0;
+      document.getElementById("Music").value = 1;
+      document.getElementById("Volunteering").value = 0;
+    }
+
+    form.addEventListener("submit", async function (event) {
+      event.preventDefault();
+
+      showResult("Prediction in progress...", "loading");
+
+      const params = new URLSearchParams({
+        Age: getValue("Age"),
+        Gender: getValue("Gender"),
+        Ethnicity: getValue("Ethnicity"),
+        ParentalEducation: getValue("ParentalEducation"),
+        StudyTimeWeekly: getValue("StudyTimeWeekly"),
+        Absences: getValue("Absences"),
+        Tutoring: getValue("Tutoring"),
+        ParentalSupport: getValue("ParentalSupport"),
+        Extracurricular: getValue("Extracurricular"),
+        Sports: getValue("Sports"),
+        Music: getValue("Music"),
+        Volunteering: getValue("Volunteering")
+      });
+
+      try {
+        const response = await fetch(`${API_URL}/predict?${params.toString()}`);
+
+        if (!response.ok) {
+          throw new Error("API request failed. Please check if the Render API is running.");
+        }
+
+        const data = await response.json();
+
+        const predictedGrade =
+          data["الدرجة المتوقعة"] ||
+          data.prediction ||
+          data.result ||
+          JSON.stringify(data);
+
+        showResult(`Predicted Grade: ${predictedGrade}`, "success");
+
+      } catch (error) {
+        showResult(`Error: ${error.message}`, "error");
+      }
+    });
+  </script>
+
+</body>
+</html>
